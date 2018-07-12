@@ -138,6 +138,7 @@ class EtcdUtil(object):
         if check_plugin_stat() == False:
             try:
                 self.client.delete(key)
+                print("Key Successfully deleted")
             except etcd.EtcdKeyNotFound:
                 print("Key not present")
         else:
@@ -150,13 +151,14 @@ cl = EtcdUtil(host_etcd_ip_address
              ,host_etcd_client_cert
              ,host_etcd_client_key)
 
+otpt = """ERROR: Not able to connect etcd, this could be because of: 
+1. etcd is not running 
+2. host and port in conf file is wrong."""
+
 if args.d == True:
     try:
         cl.delete_key('KEY')
     except etcd.EtcdConnectionFailed:
-        otpt = """ERROR: Not able to connect etcd, this could be because of: 
-1. etcd is not running 
-2. host and port in conf file is wrong."""
         print(otpt)
 else:
     key = key_check(args.key)
@@ -164,8 +166,9 @@ else:
     try:
         cl.set_key('KEY',ciph_text)
     except etcd.EtcdConnectionFailed:
-        print("Check the status/credentails for etcd")
-    print("INFO: Encrypted password: " + ciph_text)
+        print(otpt)
+        sys.exit(-1)
+    print("SUCCESSFUL: Encrypted password: " + ciph_text)
 
 
 
