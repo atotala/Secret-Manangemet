@@ -2,7 +2,7 @@ import etcd
 import json
 import argparse
 import string
-from ConfigParser import SafeConfigParser
+from configparser import SafeConfigParser
 from Crypto.Cipher import AES
 import base64
 import sys
@@ -44,8 +44,9 @@ if args.d == False:
         sys.exit(-1)
 
 
+
 conf_file = SafeConfigParser()
-conf_file.read("/etc/hpedockerplugin/hpe.conf_bkp")
+conf_file.read("/etc/hpedockerplugin/hpe.conf")
 CONF = conf_file.defaults()
 
 if len(CONF) == 0:
@@ -67,11 +68,13 @@ if host_etcd_ip_address == None or host_etcd_port_number == None:
 def encrypt(message, passphrase):
     # passphrase MUST be 16, 24 or 32 bytes long, how can I do that ?
     aes = AES.new(passphrase, AES.MODE_CFB, '1234567812345678')
-    return base64.b64encode(aes.encrypt(message))
+    sample =  base64.b64encode(aes.encrypt(message))
+    return sample.decode("utf-8")
 
 def decrypt(encrypted, passphrase):
     aes = AES.new(passphrase, AES.MODE_CFB, '1234567812345678')
-    return aes.decrypt(base64.b64decode(encrypted))
+    #return aes.decrypt(base64.b64decode(encrypted))
+    return aes
 
 
 def key_check(key):
@@ -123,7 +126,7 @@ class EtcdUtil(object):
             try:
                 self.client.read('KEY')
             except:
-                self.client.write(key,password)
+                self.client.write('KEY',password)
         else:
             print("Plugin is running can not perform the operation")
             print("ABORTING")
@@ -157,6 +160,10 @@ otpt = """ERROR: Not able to connect etcd, this could be because of:
 
 if args.d == True:
     try:
+        passp = cl.get_key('KEY')
+        passp = key_check(passp)
+        x = decrypt(encp,passp)
+        print(x)
         cl.delete_key('KEY')
     except etcd.EtcdConnectionFailed:
         print(otpt)
@@ -164,13 +171,10 @@ else:
     key = key_check(args.key)
     ciph_text = encrypt(args.secret, key)
     try:
-        cl.set_key('KEY',ciph_text)
-    except etcd.EtcdConnectionFailed:
+        cl.set_key('KEY',args.key)
+        print(args.key)
+    except :
         print(otpt)
         sys.exit(-1)
     print("SUCCESSFUL: Encrypted password: " + ciph_text)
-
-
-
-
 
