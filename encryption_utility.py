@@ -83,15 +83,14 @@ def key_check(key):
 
     if KEY_LEN < LEN16:
         KEY = key + padding_string[:LEN16 - KEY_LEN]
-
     elif KEY_LEN > LEN16 and KEY_LEN < LEN24:
         KEY = key + padding_string[:LEN24 - KEY_LEN]
-
     elif KEY_LEN > LEN24 and KEY_LEN < LEN32:
         KEY = key + padding_string[:LEN32 - KEY_LEN]
-
     elif KEY_LEN > LEN32:
-        KEY = key[:LEN32]
+        KEY = key[:LEN32]      
+    else:
+        KEY = key
 
     return KEY
 
