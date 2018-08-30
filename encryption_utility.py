@@ -123,7 +123,8 @@ class EtcdUtil(object):
     def set_key(self,key, password):
         if check_plugin_stat() == False:
             try:
-                self.client.read('KEY')
+
+              self.client.read('KEY')
             except:
                 self.client.write('KEY',password)
         else:
@@ -176,4 +177,4 @@ else:
         print(otpt)
         sys.exit(-1)
     print("SUCCESSFUL: Encrypted password: " + ciph_text)
-
+    sys.exit(-1)
